@@ -6,7 +6,13 @@ import json
 import pusher
 
 app = Flask(__name__)
-
+ # initialize Pusher
+pusher_client = pusher.Pusher(
+        app_id=os.getenv('PUSHER_APP_ID'),
+        key=os.getenv('PUSHER_KEY'),
+        secret=os.getenv('PUSHER_SECRET'),
+        cluster=os.getenv('PUSHER_CLUSTER'),
+        ssl=True)
 
 @app.route('/')
 def index():
@@ -48,6 +54,20 @@ def detect_intent_texts(project_id, session_id, text, language_code):
         
     return response.query_result.fulfillment_text
 
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    message = request.form['message']
+    project_id = os.getenv('DIALOGFLOW_PROJECT_ID')
+    fulfillment_text = detect_intent_texts(project_id, "unique", message, 'en')
+    response_text = { "message":  fulfillment_text }
+
+    socketId = request.form['socketId']
+    pusher_client.trigger('MOJO', 'new_message', 
+                             {'human_message': message, 'bot_message': fulfillment_text},
+                             socketId)
+    
+    return jsonify(response_text)
 
 
         
