@@ -1,3 +1,31 @@
+// Initialize Pusher
+const pusher = new Pusher('9173f24479dbc4b4fa29', {
+    cluster: 'ap2',
+    encrypted: true
+});
+
+// Subscribe to MOJO channel
+const channel = pusher.subscribe('MOJO');
+
+  // bind new_message event to movie_bot channel
+  channel.bind('new_message', function(data) {
+
+   // Append human message
+    $('.chat-container').append(`
+        <div class="chat-message col-md-5 human-message">
+            ${data.human_message}
+        </div>
+    `)
+
+    // Append bot message
+    $('.chat-container').append(`
+        <div class="chat-message col-md-5 offset-md-7 bot-message">
+            ${data.bot_message}
+        </div>
+    `)
+});
+
+
 function submit_message(message) {
     $.post( "/send_message", {message: message,
         socketId: pusher.connection.socket_id
@@ -43,32 +71,6 @@ $('#target').on('submit', function(e){
     submit_message(input_message)
 });
 
-// Initialize Pusher
-const pusher = new Pusher('9173f24479dbc4b4fa29', {
-    cluster: 'ap2',
-    encrypted: true
-});
-
-// Subscribe to MOJO channel
-const channel = pusher.subscribe('MOJO');
-
-  // bind new_message event to movie_bot channel
-  channel.bind('new_message', function(data) {
-
-   // Append human message
-    $('.chat-container').append(`
-        <div class="chat-message col-md-5 human-message">
-            ${data.human_message}
-        </div>
-    `)
-
-    // Append bot message
-    $('.chat-container').append(`
-        <div class="chat-message col-md-5 offset-md-7 bot-message">
-            ${data.bot_message}
-        </div>
-    `)
-});
 
 
 

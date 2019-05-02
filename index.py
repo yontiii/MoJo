@@ -19,13 +19,13 @@ def index():
     return render_template('index.html')
 
 
-@app.route('get_song_detail', methods = ['POST'])
+@app.route('/get_song_detail', methods = ['POST'])
 def get_song_detail():
     data = request.get_json(silent = True)
-    song = data['queryResult']['parameters']['track']['artist']
+    song = data['queryResult']['parameters']['artist']['track']
     api_key = os.getenv('MUSIX_API_KEY')
     
-    song_detail = requests.get('https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?format=jsonp&callback=callback&q_track={}&q_artist={}&apikey={}').format(track,artist,api_key)).content
+    song_detail = requests.get('https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?format=jsonp&callback=callback&q_track={}&q_artist={}&api_key={}').format(track,artist, api_key).content
     song_detail = json.loads(song_detail)
     response = """
         lyrics_id :{0}
@@ -33,6 +33,8 @@ def get_song_detail():
         script_tracking_url : {2}
         pixel_tracking_url : {3}
     """.format(song_detail['lyrics_id'], song_detail['lyrics_body'],song_detail['script_tracking_url'],song_detail['pixel_tracking_url'] )
+    
+  
     
     reply = {
         "fulfillmentText" : response,
